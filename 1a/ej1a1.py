@@ -24,11 +24,21 @@ def get_user_ip():
         None: Si ocurre un error en la petición
     """
     # Completa esta función para:
+    url = 'https://api.ipify.org'
     # 1. Realizar una petición GET a la URL https://api.ipify.org (sin parámetros)
+    try:
+        resp = requests.get(url)
     # 2. Verificar si la petición fue exitosa (código 200)
+        resp.raise_for_status()
     # 3. Devolver el texto de la respuesta directamente (contiene la IP)
+        if 200 <= resp.status_code < 300:
+            return resp.text
     # 4. Devolver None si hay algún error
-    pass
+    # Detectar error de cliente
+        if 400 <= resp.status_code < 500:
+            return None
+    except Exception:
+        print(f"Connection error")
 
 if __name__ == "__main__":
     # Ejemplo de uso de la función
