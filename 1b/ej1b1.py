@@ -34,10 +34,24 @@ def get_nonexistent_resource():
 
     # Completa esta función para:
     # 1. Realizar la petición GET a la URL proporcionada
+    try:
+        resp = requests.get(url)
     # 2. Capturar la excepción o error HTTP (no interrumpir la ejecución)
+        if 400 <= resp.status_code < 500:
+            error_info = {'status_code': resp.status_code,
+                          'error_message': resp.reason,
+                          'requested_url': resp.url
+                         }
+            return error_info
+
     # 3. Extraer la información solicitada del error
     # 4. Devolver un diccionario con la información del error
-    pass
+    except Exception:
+        return {'status_code': None,
+                'error_message': 'Connection error',
+                'requested_url': "https://api.ipify.org/ip"
+               }
+
 
 if __name__ == "__main__":
     # Ejemplo de uso de la función
