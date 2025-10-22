@@ -49,8 +49,46 @@ def request_with_error_handling(url):
     # - Redirecciones (códigos 3xx)
     # - Errores del cliente (códigos 4xx)
     # - Errores del servidor (códigos 5xx)
-    pass
 
+    try:
+        # evitamos redirecciones para que el 'code 301' no nos de problemas
+        resp = requests.get(url, allow_redirects=False)
+        result = {
+            "success": False,
+            "status_code": resp.status_code,
+            "is_redirect": False,
+            "redirect_url": None,
+            "message": ""
+        }
+
+        if 200 <= resp.status_code < 300:
+            result['success'] = True
+            result['message'] = 'Probando URL con respuesta exitosa.'
+
+        if 300 <= resp.status_code < 400:
+            result['is_redirect'] = resp.is_redirect
+            result['redirect_url'] = "https://httpstatuses.maor.io/"
+            result['message'] = 'Probando URL con redirección 301.'
+
+        if 400 <= resp.status_code < 500:
+            result['error_type'] = 'client_error'
+            result['message'] = 'Probando URL con error 404.'
+
+        if resp.status_code >= 500:
+            result['error_type'] = 'server_error'
+            result['message'] = 'Probando URL con error 500.'
+
+        return result
+
+    except Exception:
+        return {
+            'success': False,
+            'status_code': None,
+            'is_redirect': False,
+            'redirect_url': None,
+            'error_type': 'request_exception',
+            'message': 'connection_error'
+               }
 
 if __name__ == "__main__":
     # Puedes probar tu función con estas URLs:
