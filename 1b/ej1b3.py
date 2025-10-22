@@ -95,7 +95,7 @@ def run_server(server):
     """
     Inicia el servidor HTTP
     """
-    print(f"Servidor iniciado en http://{server.server_name}:{server.server_port}")
+    print(f"Servidor iniciado en http://{server.server_address[0]}:{server.server_port}")
     server.serve_forever()
 
 if __name__ == '__main__':
