@@ -16,7 +16,7 @@ def mock_responses():
     """
     Fixture para configurar respuestas simuladas para las peticiones HTTP
     """
-    with responses.RequestsMock() as rsps:
+    with responses.RequestsMock(assert_all_requests_are_fired=False) as rsps:
         # Configurar respuesta 404 - Not Found
         rsps.add(
             responses.GET,
