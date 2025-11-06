@@ -29,22 +29,12 @@ def get_gbfs_feeds():
     # La URL base de la API de GBFS de Barcelona
     base_url = "https://barcelona-sp.publicbikesystem.net/customer/gbfs/v2/gbfs.json"
 
-    try:
-        # Realizar petición GET a la URL
-        response = requests.get(base_url)
-
-        # Comprobar si la petición fue exitosa (código 200)
-        if response.status_code == 200:
-            # Devolver los datos en formato JSON
-            return response.json()
-        else:
-            # Si el código de estado no es 200, imprimir un mensaje de error
-            print(f"Error: La petición no fue exitosa. Código de estado: {response.status_code}")
-            return None
-    except requests.exceptions.RequestException as e:
-        # Capturar cualquier error que pueda ocurrir durante la petición
-        print(f"Error al realizar la petición: {e}")
-        return None
+    # Debes completar la función:
+    # 1. Realizar una petición GET a la URL
+    # 2. Verificar que la respuesta sea correcta (código 200)
+    # 3. Devolver los datos en formato JSON
+    # 4. Manejar posibles errores (conexión, formato, etc.)
+    pass
 
 
 def extract_feeds_info(feeds_data):
@@ -58,28 +48,12 @@ def extract_feeds_info(feeds_data):
         list: Lista de diccionarios con los campos 'name' y 'url' de cada feed
         None: Si los datos de entrada son None o no tienen el formato esperado
     """
-    # Verificar si feeds_data es None
-    if feeds_data is None:
-        return None
-
-    try:
-        # Extraer la lista de feeds para el idioma inglés (en)
-        feeds = feeds_data["data"]["en"]["feeds"]
-
-        # Crear una lista con la información relevante de cada feed
-        feeds_info = []
-        for feed in feeds:
-            feeds_info.append({
-                "name": feed["name"],
-                "url": feed["url"]
-            })
-
-        return feeds_info
-    except (KeyError, TypeError) as e:
-        # Manejar el caso en que los datos no tienen la estructura esperada
-        print(f"Error al extraer la información de los feeds: {e}")
-        return None
-
+    # Debes completar la función:
+    # 1. Verificar que feeds_data no es None
+    # 2. Extraer la lista de feeds para el idioma inglés (en)
+    # 3. Crear y devolver una lista con la información relevante de cada feed
+    # 4. Manejar posibles errores en la estructura de los datos
+    pass
 
 def print_feeds_summary(feeds_info):
     """
