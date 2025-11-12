@@ -13,8 +13,9 @@ a la API de ipify.org, un servicio estable que proporciona la IP pública.
 """
 
 import requests
+from typing import Optional         # Añadido al ver la solución
 
-def get_user_ip():
+def get_user_ip() -> Optional[str]:
     """
     Realiza una petición GET a api.ipify.org para obtener la dirección IP pública
     en formato texto plano.
@@ -24,21 +25,24 @@ def get_user_ip():
         None: Si ocurre un error en la petición
     """
     # Completa esta función para:
-    url = 'https://api.ipify.org'
     # 1. Realizar una petición GET a la URL https://api.ipify.org (sin parámetros)
+    # 2. Verificar si la petición fue exitosa (código 200)
+    # 3. Devolver el texto de la respuesta directamente (contiene la IP)
+    # 4. Devolver None si hay algún error
+
+    url = 'https://api.ipify.org'
     try:
         resp = requests.get(url)
-    # 2. Verificar si la petición fue exitosa (código 200)
-        resp.raise_for_status()
-    # 3. Devolver el texto de la respuesta directamente (contiene la IP)
-        if 200 <= resp.status_code < 300:
+        # Si se controla cada código de estado manualmente, es mejor comprobar 
+        # response.status_code directamente en lugar de dejar que se lance una 
+        # excepción automática con 'raise_for_status'.
+        #resp.raise_for_status() 
+        if resp.status_code == 200:
             return resp.text
-    # 4. Devolver None si hay algún error
-    # Detectar error de cliente
-        if 400 <= resp.status_code < 500:
-            return None
-    except Exception:
-        print(f"Connection error")
+        return None
+    except Exception as e:
+        print(f"Error al obtener la IP: {e}")
+        return None
 
 if __name__ == "__main__":
     # Ejemplo de uso de la función
