@@ -64,28 +64,12 @@ def extract_feeds_info(feeds_data):
         list: Lista de diccionarios con los campos 'name' y 'url' de cada feed
         None: Si los datos de entrada son None o no tienen el formato esperado
     """
-    # Verificar si feeds_data es None
-    if feeds_data is None:
-        return None
-
-    try:
-        # Extraer la lista de feeds para el idioma inglés (en)
-        feeds = feeds_data["data"]["en"]["feeds"]
-
-        # Crear una lista con la información relevante de cada feed
-        feeds_info = []
-        for feed in feeds:
-            feeds_info.append({
-                "name": feed["name"],
-                "url": feed["url"]
-            })
-
-        return feeds_info
-    except (KeyError, TypeError) as e:
-        # Manejar el caso en que los datos no tienen la estructura esperada
-        print(f"Error al extraer la información de los feeds: {e}")
-        return None
-
+    # Debes completar la función:
+    # 1. Verificar que feeds_data no es None
+    # 2. Extraer la lista de feeds para el idioma inglés (en)
+    # 3. Crear y devolver una lista con la información relevante de cada feed
+    # 4. Manejar posibles errores en la estructura de los datos
+    pass
 
 def print_feeds_summary(feeds_info):
     """

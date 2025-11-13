@@ -73,14 +73,7 @@ class MyHTTPRequestHandler(BaseHTTPRequestHandler):
             # Nota: Para los nombres de campo también se aceptan variaciones como:
             # - Para el código: "code" o "status"
             # - Para el mensaje: "message", "descripcion" o "detail"
-            self.send_response(404)
-            self.send_header("Content-Type", "application/json")
-            self.end_headers()
-            error_info = {
-                "code": 404,
-                "message": f"Recurso {self.path} no encontrado"
-            }
-            self.wfile.write(json.dumps(error_info).encode())
+            pass
 
 
 def create_server(host="localhost", port=8000):
