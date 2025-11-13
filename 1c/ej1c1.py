@@ -29,6 +29,12 @@ def get_gbfs_feeds():
     # La URL base de la API de GBFS de Barcelona
     base_url = "https://barcelona-sp.publicbikesystem.net/customer/gbfs/v2/gbfs.json"
 
+    # Debes completar la función:
+    # 1. Realizar una petición GET a la URL
+    # 2. Verificar que la respuesta sea correcta (código 200)
+    # 3. Devolver los datos en formato JSON
+    # 4. Manejar posibles errores (conexión, formato, etc.)
+
     try:
         # Realizar petición GET a la URL
         response = requests.get(base_url)

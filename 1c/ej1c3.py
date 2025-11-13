@@ -39,12 +39,12 @@ class StationStatus(enum.Enum):
 
 
 @dataclass
-class VehicleType():
+class VehicleType:
     """
     Clase que representa un tipo de vehículo y su cantidad disponible.
     """
     # Añade aquí los atributos necesarios: tipo de vehículo (vehicle_type_id) y cantidad (count)
-    def __init__(self, vehicle_type_id, count):
+    def __init__(self, vehicle_type_id, count) -> 'VehicleType':
         # Inicialización de los atributos
         self.vehicle_type_id = vehicle_type_id
         self.count = count
@@ -66,7 +66,7 @@ class StationStatusInfo:
         vehicle_types_available: Lista de tipos de vehículos disponibles
     """
 
-    def __init__(self, station_data):
+    def __init__(self, station_data)-> 'StationStatusInfo':
         """
         Inicializa una instancia de StationStatusInfo a partir de los datos
         de la estación proporcionados por la API.
@@ -77,19 +77,28 @@ class StationStatusInfo:
         # Implementa aquí la inicialización de todos los atributos
         # a partir del diccionario station_data
 
-        self.station_id = station_data['station_id']
-        self.status = station_data['status']
+        self.station_id = station_data.get('station_id')
+        self.status = station_data.get('status')
         if self.status == 'IN_SERVICE':
             self.status = StationStatus.IN_SERVICE
         else:
             self.status = StationStatus.MAINTENANCE
-        self.num_bikes_available = station_data['num_bikes_available']
-        self.num_bikes_disabled = station_data['num_bikes_disabled']
-        self.num_docks_available = station_data['num_docks_available']
-        self.is_renting = station_data['is_renting']
-        self.is_returning = station_data['is_returning']
-        self.last_reported = station_data['last_reported']
-        self.vehicle_types_available = station_data['vehicle_types_available']
+        self.num_bikes_available = station_data.get('num_bikes_available')
+        self.num_bikes_disabled = station_data.get('num_bikes_disabled')
+        self.num_docks_available = station_data.get('num_docks_available')
+        self.is_renting = station_data.get('is_renting')
+        self.is_returning = station_data.get('is_returning')
+        self.last_reported = station_data.get('last_reported')
+        self.vehicle_types_available = station_data.get('vehicle_types_available')
+
+        # Process vehicle types
+        self.vehicle_types = []
+        vehicle_types = station_data.get('vehicle_types_available', [])
+        for vtype in vehicle_types:
+            self.vehicle_types.append(VehicleType(
+                vehicle_type_id=vtype.get('vehicle_type_id'),
+                count=vtype.get('count', 0)
+            ))
 
     @property
     def is_operational(self) -> bool:
@@ -101,7 +110,7 @@ class StationStatusInfo:
             bool: True si la estación está operativa, False en caso contrario
         """
         # Implementa aquí la lógica para determinar si la estación está operativa
-        if self.status == StationStatus.IN_SERVICE and self.is_renting == True and self.is_returning == True:
+        if self.status == StationStatus.IN_SERVICE and self.is_renting and self.is_returning:
             return True
         else:
             return False
@@ -116,14 +125,11 @@ class StationStatusInfo:
         """
         # Implementa aquí la lógica para devolver un diccionario
         # con la cantidad de bicicletas disponibles por tipo
-        #available_bikes_by_type_list = []
-        if self.vehicle_types_available:
-            diccionario_final = {}
-            for diccionario in self.vehicle_types_available:
-                clave_final = diccionario['vehicle_type_id']
-                valor_final = diccionario['count']
-                diccionario_final[clave_final] = valor_final
-        return diccionario_final
+        
+        return {
+            vtype.vehicle_type_id: vtype.count
+            for vtype in self.vehicle_types
+        }                                               # solución
 
     def __str__(self) -> str:
         """
@@ -189,9 +195,8 @@ class BarcelonaBikingClient:
                 # Si status_code no es 200, imprimimos un mensaje de error
                 print(f"Error: La petición no fue exitosa. Código de estado: {resp.status_code}")
                 return None
-        except requests.exceptions.RequestException as e:
+        except requests.exceptions.RequestException:
             # Capturamos cualquier error que pueda ocurrir durante la petición
-            print(f"Error al realizar la petición: {e}")
             stations_tupla = ([], None)
             return stations_tupla
 

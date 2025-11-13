@@ -16,9 +16,10 @@ Tu tarea es completar la implementación de las funciones indicadas.
 """
 
 import requests
+from typing import Optional, Dict, Tuple
 import pandas as pd
 
-def get_stations_data():
+def get_stations_data()-> Optional[Dict]:
     """
     Realiza una petición a la API para obtener información de las estaciones
     y extrae el objeto 'data' de la respuesta.
@@ -44,17 +45,13 @@ def get_stations_data():
             data_json = resp.json()
             result = data_json['data']
             return result
-        else:
-            # Si status_code no es 200, imprimimos un mensaje de error
-            print(f"Error: La petición no fue exitosa. Código de estado: {resp.status_code}")
-            return
-    except requests.exceptions.RequestException as e:
+        return None
+    except requests.exceptions.RequestException:
         # Capturamos cualquier error que pueda ocurrir durante la petición
-        print(f"Error al realizar la petición: {e}")
         return None
 
 
-def get_station_info(stations_data, station_id):
+def get_station_info(stations_data, station_id)-> Optional[Dict]:
     """
     Busca y devuelve la información de una estación específica según su ID.
 
@@ -73,28 +70,17 @@ def get_station_info(stations_data, station_id):
     # 4. Si no existe, devolver None
 
     # Verificamos que stations_data no es None y tiene la estructura esperada
-    if stations_data is None:
+    if not stations_data or not isinstance(stations_data, dict) or 'stations' not in stations_data: # solución
         return None
     # Buscamos la estación con el ID proporcionado
-    try:
-        station_data = {}
-        stations = stations_data['stations']
-        for station in stations:
-            if station['station_id'] == station_id:
-                station_data.update(station)
-
-        # Devolvemos el resultado de la búsqueda de estación
-        if station_data:
-            return station_data
-        else:
-            return None
-    except KeyError as e:
-        # Manejamos el caso en que no se encuentre la clave buscada
-        print(f"Error al localizar la station solicitada: {e}")
-        return None
+    stations = stations_data['stations']
+    for station in stations:
+        if station['station_id'] == station_id:
+            return station
+    return None
 
 
-def get_station_coordinates(station_info):
+def get_station_coordinates(station_info)-> Optional[pd.DataFrame]:
     """
     Extrae las coordenadas (latitud y longitud) de una estación.
 
@@ -112,22 +98,20 @@ def get_station_coordinates(station_info):
     # 4. Manejar casos donde los campos no existan
 
     # Verificamos que station_info no es None
-    if station_info is None:
+    if not station_info or not isinstance(station_info, dict):      # solución
         return None
+    
     # Extraemos los valores de latitud y longitud del diccionario
-    try:
-        station_lat = station_info['lat']
-        station_lon = station_info['lon']
-        station_coord = (station_lat, station_lon) 
-        # Devolvemos los valores como tupla
-        return station_coord
-    except KeyError as e:
-        # Manejamos el caso en que no se encuentre la clave buscada
-        print(f"Error al localizar las coordenadas de la estación solicitada: {e}")
-        return None
+    station_lat = station_info.get('lat')
+    station_lon = station_info.get('lon') 
+
+    # Devolvemos los valores como tupla
+    if station_lat is not None and station_lon is not None:
+        return (station_lat, station_lon)
+    return None
 
 
-def create_stations_dataframe(stations_data):
+def create_stations_dataframe(stations_data)-> Optional[pd.DataFrame]:
     """
     Crea un DataFrame de pandas con información básica de todas las estaciones.
 
@@ -146,21 +130,17 @@ def create_stations_dataframe(stations_data):
 
     # Verificamos que stations_data no es None
 
-    if stations_data is None:
+    if not stations_data or not isinstance(stations_data, dict) or 'stations' not in stations_data:    # solución
         return None
+    
     df_stations = pd.DataFrame()
+    
     # Creamos una lista de diccionarios con la información de cada estación
-    try:
-        # Crear una lista con la información de cada estación
-        stations_list =[]
-        for station in stations_data['stations']:
-            stations_list.append(station)
-        df_stations = pd.DataFrame(stations_list)
-        df_stations.rename(columns={'lat': 'latitude', 'lon': 'longitude'}, inplace=True)
-    except KeyError as e:
-        # Manejamos el caso en que no se encuentre la clave buscada
-        print(f"Error al crear el dataframe, los datos no tienen el formato esperado: {e}")
-        return None
+    stations_list =[]
+    for station in stations_data['stations']:
+        stations_list.append(station)
+    df_stations = pd.DataFrame(stations_list)
+    df_stations.rename(columns={'lat': 'latitude', 'lon': 'longitude'}, inplace=True)
 
     return df_stations
 
