@@ -34,13 +34,17 @@ def listar_sistemas_disponibles() -> List[str]:
     """
     # Implementa aquí la lógica para obtener y devolver la lista
     # de sistemas disponibles en pybikes
-    sistemas = []
-    files_sistemas = pybikes.getDataFiles()
-    for sistema in files_sistemas:
-        sistema = sistema.split('.')[0]
-        sistemas.append(sistema)
-
-    return sistemas
+    try:
+        sistemas = []
+        files_sistemas = pybikes.getDataFiles()
+        for sistema in files_sistemas:
+            sistema = sistema.split('.')[0]
+            sistemas.append(sistema)
+        
+        return sistemas
+    
+    except AttributeError:
+        return []
 
 
 def buscar_sistema_por_ciudad(ciudad: str) -> List[str]:
@@ -55,8 +59,9 @@ def buscar_sistema_por_ciudad(ciudad: str) -> List[str]:
     """
     # Implementa aquí la lógica para buscar y devolver sistemas
     # que coincidan con la ciudad especificada
-    sistemas_barcelona = []
+    sistemas_city = []
     sistemas = []
+    
     files_sistemas = pybikes.getDataFiles()
     for sistema in files_sistemas:
         sistema = sistema.split('.')[0]
@@ -67,10 +72,10 @@ def buscar_sistema_por_ciudad(ciudad: str) -> List[str]:
             for instance in sistema_data['instances']: 
                 if 'city' in instance['meta']:
                     if instance['meta']['city'] == ciudad:
-                        sistemas_barcelona.append(sistema)
-                        print(sistemas_barcelona)
+                        sistemas_city.append(sistema)
+                        #print(sistemas_city)
 
-    return sistemas_barcelona
+    return sistemas_city
 
 
 def obtener_info_sistema(tag: str) -> Dict[str, Any]:
@@ -92,11 +97,11 @@ def obtener_info_sistema(tag: str) -> Dict[str, Any]:
                     if 'city' in instance['meta']:
                         if instance['meta']['city'] == 'Barcelona':
                             info = instance['meta']
-    except FileNotFoundError as e:
-        # Manejamos el caso en que no exista el sistema
-        print(f"Sistema inexsistente: {e}")
+        return info
+    
+    except FileNotFoundError:
+        # Para el caso en que no exista el sistema
         return None
-    return info
 
 
 def obtener_estaciones(tag: str) -> Optional[List]:
@@ -115,11 +120,11 @@ def obtener_estaciones(tag: str) -> Optional[List]:
         sistema_bicing = pybikes.get(tag)
         sistema_bicing.update()
         info = sistema_bicing.stations
-    except Exception as e:
-        # Manejamos el caso en que no se encuentre el sistema
-        print(f"Sistema inexsistente: {e}")
+        
+        return info
+    except Exception:
+        # Para el caso en que no se encuentre el sistema
         return None
-    return info
 
 def crear_dataframe_estaciones(estaciones: List) -> pd.DataFrame:
     """
@@ -135,19 +140,16 @@ def crear_dataframe_estaciones(estaciones: List) -> pd.DataFrame:
     # en un DataFrame de pandas con al menos las columnas:
     # nombre, latitud, longitud, bicicletas disponibles, espacios libres
     df_estaciones = pd.DataFrame()
-    # Creamos una lista de diccionarios con la información de cada estación
-    try:
-        # Crear una lista con la información de cada estación
-        estaciones_list =[]
-        for estacion in estaciones:
-            datos = pybikes.BikeShareStation.to_dict(estacion)
-            estaciones_list.append(datos)
-        df_estaciones = pd.DataFrame(estaciones_list)
-    except KeyError as e:
-        # Manejamos el caso en que no se encuentre la clave buscada
-        print(f"Error al crear el dataframe, los datos no tienen el formato esperado: {e}")
-        return None
 
+    if not estaciones:
+        return pd.DataFrame()
+    
+    # Creamos una lista de diccionarios con la información de cada estación
+    estaciones_list =[]
+    for estacion in estaciones:
+        datos = pybikes.BikeShareStation.to_dict(estacion)
+        estaciones_list.append(datos)
+    df_estaciones = pd.DataFrame(estaciones_list)
     return df_estaciones
 
 
@@ -166,14 +168,16 @@ def visualizar_estaciones(df: pd.DataFrame) -> None:
     df_corto = df_ordenado.head(10)
 
     # creamos el gráfico de barras
-    #df_corto.plot(kind='bar', x='name', y='free', legend=True)
-    plt.barh(df_corto['name'], df_corto['free'])
+    plt.figure(figsize=(12, 6))
+    plt.bar(df_corto['name'], df_corto['free'])
     # personalizamos el gráfico
+    plt.xticks(rotation=45, ha='right')
     plt.xlabel("Bicicletas disponibles")
     plt.ylabel("Estaciones")
     plt.title("Estaciones con más bicicletas disponibles")
 
     # mostramos el gráfico
+    plt.tight_layout()
     plt.show()
 
     return 
