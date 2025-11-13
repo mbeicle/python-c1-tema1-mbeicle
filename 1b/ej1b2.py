@@ -25,8 +25,12 @@ en el cuerpo JSON y usar el campo "description" para proporcionar información d
 """
 
 import requests
+from typing import Dict, Union              # Añadido al ver la solución
 
-def request_with_error_handling(url):
+JSONValue = Union[bool, int, str, None]
+JSONDict = Dict[str, JSONValue]
+
+def request_with_error_handling(url: str)-> JSONDict:
     """
     Realiza una petición GET a la URL proporcionada y maneja los diferentes tipos de
     respuestas HTTP que puedan ocurrir.
@@ -61,34 +65,50 @@ def request_with_error_handling(url):
             "message": ""
         }
 
+        # En la solución, se descarga la respuesta JSON
+        try:
+            json_data = resp.json()
+            description = json_data.get('description', '')
+            # Verify that JSON code matches HTTP status code
+            if json_data.get('code') != resp.status_code:
+                description = resp.reason
+        except:
+            description = resp.reason
+
+        # Manejamos los diferentes tipos de respuestas HTTP
+
         if 200 <= resp.status_code < 300:
             result['success'] = True
-            result['message'] = 'Probando URL con respuesta exitosa.'
+            result['message'] = f"Success: {description}"
 
         if 300 <= resp.status_code < 400:
             result['is_redirect'] = resp.is_redirect
-            result['redirect_url'] = "https://httpstatuses.maor.io/"
-            result['message'] = 'Probando URL con redirección 301.'
+            result['redirect_url'] = resp.headers.get('Location', '')
+            result['message'] = f"Redirect: {description}"
 
         if 400 <= resp.status_code < 500:
             result['error_type'] = 'client_error'
-            result['message'] = 'Probando URL con error 404.'
+            result['message'] = f"Client Error: {description}"
 
         if resp.status_code >= 500:
             result['error_type'] = 'server_error'
-            result['message'] = 'Probando URL con error 500.'
+            result['message'] = f"Server Error: {description}"
 
         return result
 
-    except Exception:
+    except requests.exceptions.ConnectionError:
         return {
             'success': False,
             'status_code': None,
             'is_redirect': False,
-            'redirect_url': None,
-            'error_type': 'request_exception',
-            'message': 'connection_error'
-               }
+            'error_type': 'connection_error',
+            'message': 'Connection_error: connection refused'
+            }
+
+    except Exception as e:
+        result['message'] = f"Unexpected Error: {str(e)}"
+        return result
+
 
 if __name__ == "__main__":
     # Puedes probar tu función con estas URLs:
