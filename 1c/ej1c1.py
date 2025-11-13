@@ -69,7 +69,29 @@ def extract_feeds_info(feeds_data):
     # 2. Extraer la lista de feeds para el idioma inglés (en)
     # 3. Crear y devolver una lista con la información relevante de cada feed
     # 4. Manejar posibles errores en la estructura de los datos
-    pass
+    
+    # Verificamos si feeds_data es None
+    if feeds_data is None:
+        return None
+    
+    try:
+        # Extraemos la lista de feeds en inglés 
+        feeds = feeds_data["data"]["en"]["feeds"]
+
+        # Creamos una lista con la información de cada feed
+        feeds_info = []
+        for feed in feeds:
+            feeds_info.append({
+                "name": feed["name"],
+                "url": feed["url"]
+            })
+
+        return feeds_info
+    
+    except Exception as e:
+        # Para el caso en que los datos no tienen la estructura esperada
+        print(f"Error al extraer la información de los feeds: {e}")
+        return None
 
 def print_feeds_summary(feeds_info):
     """
